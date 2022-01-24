@@ -9,52 +9,74 @@ import (
 var answersFile = "answers.json"
 
 type Answer struct {
-	Key   string `json:"key,omitempty"`
-	Value string `json:"value,omitempty"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
-// GetValue retrieves an answer's value for a given answer's key
+// GetAnswerValue retrieves an answer's value for a given answer's key
 // If the answer does not exist it will exit with an error
-func GetValue(key string) (string, error) {
+func GetAnswerValue(key string) (string, error) {
 	value, ok := AllAnswersIndexed[key]
 	if !ok {
-		return "", fmt.Errorf("getValue: answer '%s' does not exist", key)
+		return "", fmt.Errorf("getAnswerValue: answer '%s' does not exist", key)
 	}
 	return value, nil
 }
 
-// PostValue creates an answer, if the answer already exists it exits with an error
-func PostValue(ans Answer) error {
+// CreateAnswer creates an answer, if the answer already exists it exits with an error
+func CreateAnswer(ans Answer) error {
 	_, ok := AllAnswersIndexed[ans.Key]
 	if ok {
-		return fmt.Errorf("postValue: answer '%s' already exists", ans.Key)
+		return fmt.Errorf("createAnswer: answer '%s' already exists", ans.Key)
 	}
 
 	AllAnswersIndexed[ans.Key] = ans.Value
-	AllAnswersIndexed.SaveAnswers() // refresh all answers
+	err := AllAnswersIndexed.SaveAnswers() // refresh all answers
+	if err != nil {
+		return err
+	}
+	err = AllEventsIndexed.CreateEvent(Create, ans) // create event
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // Deletevalue will try to delete an existing answer given its key
 // If the requested answer does not exist it will error out
-func DeleteValue(key string) error {
-	_, ok := AllAnswersIndexed[key]
+func DeleteAnswer(key string) error {
+	value, ok := AllAnswersIndexed[key]
 	if !ok {
-		return fmt.Errorf("deleteValue: answer '%s' does not exist", key)
+		return fmt.Errorf("deleteAnswer: answer '%s' does not exist", key)
 	}
 	delete(AllAnswersIndexed, key)
+	err := AllAnswersIndexed.SaveAnswers()
+	if err != nil {
+		return err
+	} // refresh all answers
+	err = AllEventsIndexed.CreateEvent(Delete, Answer{Key: key, Value: value}) // delete event
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-// EditValue will try to update an existing answer given its key
+// EditAnswer will try to update an existing answer given its key
 // If the requested answer does not exist it will error out
-func EditValue(ans Answer) error {
+func EditAnswer(ans Answer) error {
 	_, ok := AllAnswersIndexed[ans.Key]
 	if !ok {
-		return fmt.Errorf("editValue: answer '%s' does not exist", ans.Key)
+		return fmt.Errorf("editAnswer: answer '%s' does not exist", ans.Key)
 	}
 	AllAnswersIndexed[ans.Key] = ans.Value
-	AllAnswersIndexed.SaveAnswers()
+	err := AllAnswersIndexed.SaveAnswers() // refresh all answers
+	if err != nil {
+		return err
+	}
+	err = AllEventsIndexed.CreateEvent(Update, ans) // update event
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -81,20 +103,22 @@ func (mapAnswers MapOfAnswers) SaveAnswers() error {
 }
 
 // InitAnswers will populate internal answers map using the json answers file
-func InitAnswers() error {
-	body, _ := ioutil.ReadFile(answersFile)
+// If file is not found or it is not valid, an empty map will be created instead
+func InitAnswers() {
+	AllAnswersIndexed = make(MapOfAnswers)
 
-	var allAnswers []Answer
-	err := json.Unmarshal(body, &allAnswers)
+	body, err := ioutil.ReadFile(answersFile)
 	if err != nil {
-		return fmt.Errorf("initAnswers: %v", err)
+		return
 	}
 
-	AllAnswersIndexed = make(MapOfAnswers)
+	var allAnswers []Answer
+	err = json.Unmarshal(body, &allAnswers)
+	if err != nil {
+		return
+	}
 
 	for _, ans := range allAnswers {
 		AllAnswersIndexed[ans.Key] = ans.Value
 	}
-
-	return nil
 }

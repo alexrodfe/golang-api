@@ -12,6 +12,7 @@ func main() {
 	s := server.New()
 
 	answer.InitAnswers()
+	answer.InitEvents()
 
 	log.Fatal(http.ListenAndServe(":8081", s.Router()))
 }

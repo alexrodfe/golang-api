@@ -25,7 +25,7 @@ func (a *api) getAnswer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	value, err := answer.GetValue(key)
+	value, err := answer.GetAnswerValue(key)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -36,7 +36,7 @@ func (a *api) getAnswer(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *api) postAnswer(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body) // TODO : err handling
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -49,7 +49,7 @@ func (a *api) postAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = answer.PostValue(ans)
+	err = answer.CreateAnswer(ans)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
@@ -62,7 +62,7 @@ func (a *api) deleteAnswer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	err := answer.DeleteValue(key)
+	err := answer.DeleteAnswer(key)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -81,7 +81,7 @@ func (a *api) editAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = answer.EditValue(ans)
+	err = answer.EditAnswer(ans)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
