@@ -11,8 +11,7 @@ import (
 func main() {
 	s := server.New()
 
-	answer.AllAnswersIndexed = make(answer.MapOfAnswers)
-	answer.AllAnswersIndexed["key"] = "hola"
+	answer.InitAnswers()
 
 	log.Fatal(http.ListenAndServe(":8081", s.Router()))
 }
