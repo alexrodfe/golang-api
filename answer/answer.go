@@ -13,26 +13,45 @@ type Answer struct {
 	Value string `json:"value,omitempty"`
 }
 
-func GetValue(key string) string {
-	return AllAnswersIndexed[key]
-}
-
-func PostValue(ans Answer) {
-	AllAnswersIndexed[ans.Key] = ans.Value
-	AllAnswersIndexed.SaveAnswers()
-}
-
-func DeleteValue(key string) {
-	_, ok := AllAnswersIndexed[key]
-	if ok {
-		delete(AllAnswersIndexed, key)
+// GetValue retrieves an answer's value for a given answer's key
+// If the answer does not exist it will exit with an error
+func GetValue(key string) (string, error) {
+	value, ok := AllAnswersIndexed[key]
+	if !ok {
+		return "", fmt.Errorf("getValue: answer '%s' does not exist", key)
 	}
+	return value, nil
 }
 
+// PostValue creates an answer, if the answer already exists it exits with an error
+func PostValue(ans Answer) error {
+	_, ok := AllAnswersIndexed[ans.Key]
+	if ok {
+		return fmt.Errorf("postValue: answer '%s' already exists", ans.Key)
+	}
+
+	AllAnswersIndexed[ans.Key] = ans.Value
+	AllAnswersIndexed.SaveAnswers() // refresh all answers
+	return nil
+}
+
+// Deletevalue will try to delete an existing answer given its key
+// If the requested answer does not exist it will error out
+func DeleteValue(key string) error {
+	_, ok := AllAnswersIndexed[key]
+	if !ok {
+		return fmt.Errorf("deleteValue: answer '%s' does not exist", key)
+	}
+	delete(AllAnswersIndexed, key)
+	return nil
+}
+
+// EditValue will try to update an existing answer given its key
+// If the requested answer does not exist it will error out
 func EditValue(ans Answer) error {
 	_, ok := AllAnswersIndexed[ans.Key]
 	if !ok {
-		return fmt.Errorf("could not edit value for non existing answer")
+		return fmt.Errorf("editValue: answer '%s' does not exist", ans.Key)
 	}
 	AllAnswersIndexed[ans.Key] = ans.Value
 	AllAnswersIndexed.SaveAnswers()
@@ -43,20 +62,33 @@ type MapOfAnswers map[string]string
 
 var AllAnswersIndexed MapOfAnswers
 
-func (mapAnswers MapOfAnswers) SaveAnswers() {
+// SaveAnswers will store all existing answers into a json file for preservation
+func (mapAnswers MapOfAnswers) SaveAnswers() error {
 	allAnswers := make([]Answer, 0)
 	for key, value := range mapAnswers {
 		allAnswers = append(allAnswers, Answer{Key: key, Value: value})
 	}
 
-	file, _ := json.MarshalIndent(allAnswers, "", "") // TODO err handling
-	ioutil.WriteFile(answersFile, file, 0644)
+	file, err := json.MarshalIndent(allAnswers, "", "")
+	if err != nil {
+		return fmt.Errorf("saveAnswers: %v", err)
+	}
+	err = ioutil.WriteFile(answersFile, file, 0644)
+	if err != nil {
+		return fmt.Errorf("saveAnswers: %v", err)
+	}
+	return nil
 }
 
-func InitAnswers() { // TODO err handling
+// InitAnswers will populate internal answers map using the json answers file
+func InitAnswers() error {
 	body, _ := ioutil.ReadFile(answersFile)
+
 	var allAnswers []Answer
-	json.Unmarshal(body, &allAnswers)
+	err := json.Unmarshal(body, &allAnswers)
+	if err != nil {
+		return fmt.Errorf("initAnswers: %v", err)
+	}
 
 	AllAnswersIndexed = make(MapOfAnswers)
 
@@ -64,5 +96,5 @@ func InitAnswers() { // TODO err handling
 		AllAnswersIndexed[ans.Key] = ans.Value
 	}
 
-	fmt.Println(AllAnswersIndexed)
+	return nil
 }

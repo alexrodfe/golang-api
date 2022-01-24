@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -25,44 +24,67 @@ func (a *api) getAnswers(w http.ResponseWriter, r *http.Request) {
 func (a *api) getAnswer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
-	value := answer.GetValue(key)
+
+	value, err := answer.GetValue(key)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(value)
 }
 
 func (a *api) postAnswer(w http.ResponseWriter, r *http.Request) {
-	body, _ := ioutil.ReadAll(r.Body) // TODO : err handling
-
-	var ans answer.Answer
-	err := json.Unmarshal(body, &ans)
+	body, err := ioutil.ReadAll(r.Body) // TODO : err handling
 	if err != nil {
-		fmt.Println("ouch")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	answer.PostValue(ans)
+	var ans answer.Answer
+	err = json.Unmarshal(body, &ans)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = answer.PostValue(ans)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusConflict)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
 func (a *api) deleteAnswer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
-	answer.DeleteValue(key)
+
+	err := answer.DeleteValue(key)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
 
 func (a *api) editAnswer(w http.ResponseWriter, r *http.Request) {
-	body, _ := ioutil.ReadAll(r.Body) // TODO : err handling
+	body, _ := ioutil.ReadAll(r.Body)
 
 	var ans answer.Answer
 	err := json.Unmarshal(body, &ans)
 	if err != nil {
-		fmt.Println("ouch")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	err = answer.EditValue(ans)
 	if err != nil {
-		fmt.Println("ouch")
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
