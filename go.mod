@@ -1,4 +1,4 @@
-module planner
+module github.com/alexrodfe/golang-api
 
 go 1.17
 
