@@ -8,11 +8,15 @@ import (
 	"github.com/alexrodfe/golang-api/server"
 )
 
-func main() {
-	s := server.New()
+var AllAnswersIndexed answer.MapOfAnswers
+var AllEventsIndexed answer.MapOfEvents
 
-	answer.InitAnswers()
-	answer.InitEvents()
+func main() {
+	AllAnswersIndexed = answer.InitAnswers()
+	AllEventsIndexed = answer.InitEvents()
+
+	anse := answer.NewAnswerEngine(&AllAnswersIndexed, &AllEventsIndexed)
+	s := server.New(anse)
 
 	log.Fatal(http.ListenAndServe(":8081", s.Router()))
 }
