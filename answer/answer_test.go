@@ -142,10 +142,10 @@ func (suite *AnswerTestSuite) TestGetAnswerHistory() {
 	err = suite.anse.EditAnswer(ans)
 	suite.Require().NoError(err)
 
-	err = suite.anse.DeleteAnswer(ans.Key)
+	_, err = suite.anse.GetAnswerValue(ans.Key)
 	suite.Require().NoError(err)
 
-	_, err = suite.anse.GetAnswerValue(ans.Key)
+	err = suite.anse.DeleteAnswer(ans.Key)
 	suite.Require().NoError(err)
 
 	events, err := suite.anse.GetAnswerHistory(ans.Key)
