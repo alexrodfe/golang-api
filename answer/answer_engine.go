@@ -80,3 +80,14 @@ func (anse AnswerEngine) EditAnswer(ans Answer) error {
 	}
 	return nil
 }
+
+// GetAnswerHistory will return all events for a given answer
+// These we can assume are in chronological order, as it is the order in which they were
+// saved into our map. If needed we could declare other sorting parameters for an event collection
+func (anse AnswerEngine) GetAnswerHistory(key string) ([]Event, error) {
+	events, ok := (*anse.eventsMap)[key]
+	if !ok {
+		return []Event{}, fmt.Errorf("getAnswerHistory: there is no history for answer %s", key)
+	}
+	return events, nil
+}
