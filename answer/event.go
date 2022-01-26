@@ -60,8 +60,7 @@ func InitEvents() MapOfEvents {
 		return allEventsIndexed
 	}
 
-	var allEvents MapOfEvents
-	err = json.Unmarshal(body, &allEvents)
+	err = json.Unmarshal(body, &allEventsIndexed)
 	if err != nil {
 		return allEventsIndexed
 	}
