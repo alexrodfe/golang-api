@@ -18,5 +18,5 @@ func main() {
 	anse := answer.NewAnswerEngine(&AllAnswersIndexed, &AllEventsIndexed)
 	s := server.New(anse)
 
-	log.Fatal(http.ListenAndServe(":8081", s.Router()))
+	log.Fatal(http.ListenAndServe(":8080", s.Router()))
 }
