@@ -145,9 +145,12 @@ func (suite *AnswerTestSuite) TestGetAnswerHistory() {
 	err = suite.anse.DeleteAnswer(ans.Key)
 	suite.Require().NoError(err)
 
+	_, err = suite.anse.GetAnswerValue(ans.Key)
+	suite.Require().NoError(err)
+
 	events, err := suite.anse.GetAnswerHistory(ans.Key)
 	suite.Require().NoError(err)
-	suite.Require().Len(events, 3)
+	suite.Require().Len(events, 3) // get is not an event
 
 	// chronological order
 	suite.Equal(Create, events[0].Event)
