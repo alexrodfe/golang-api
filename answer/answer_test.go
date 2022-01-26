@@ -128,12 +128,53 @@ func (suite *AnswerTestSuite) TestEditAnswer() {
 	suite.Equal(editValue, testValue)
 }
 
-func (suite *AnswerTestSuite) TestIncorrectFlow() {
+func (suite *AnswerTestSuite) TestGetAnswerHistory() {
 	ans := createMockanswer()
 
+	_, err := suite.anse.GetAnswerHistory(ans.Key)
+	suite.Require().Error(err)
+
+	err = suite.anse.CreateAnswer(ans)
+	suite.Require().NoError(err)
+
+	editValue := "test"
+	ans.Value = editValue
+	err = suite.anse.EditAnswer(ans)
+	suite.Require().NoError(err)
+
+	err = suite.anse.DeleteAnswer(ans.Key)
+	suite.Require().NoError(err)
+
+	events, err := suite.anse.GetAnswerHistory(ans.Key)
+	suite.Require().NoError(err)
+	suite.Require().Len(events, 3)
+
+	// chronological order
+	suite.Equal(Create, events[0].Event)
+	suite.Equal(Update, events[1].Event)
+	suite.Equal(Delete, events[2].Event)
+}
+
+func (suite *AnswerTestSuite) TestFlow() {
+	ans := createMockanswer()
+
+	// correct flow create → update → delete → create → update
 	err := suite.anse.CreateAnswer(ans)
 	suite.Require().NoError(err)
 
+	err = suite.anse.EditAnswer(ans)
+	suite.Require().NoError(err)
+
+	err = suite.anse.DeleteAnswer(ans.Key)
+	suite.Require().NoError(err)
+
+	err = suite.anse.CreateAnswer(ans)
+	suite.Require().NoError(err)
+
+	err = suite.anse.EditAnswer(ans)
+	suite.Require().NoError(err)
+
+	// incorrect flow create → delete → update
 	err = suite.anse.DeleteAnswer(ans.Key)
 	suite.Require().NoError(err)
 
