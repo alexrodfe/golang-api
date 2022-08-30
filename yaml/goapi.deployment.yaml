@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goapi-deployment
+  namespace: default
+  labels:
+    app: goapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: goapi
+  template:
+    metadata:
+      labels:
+        app: goapi
+    spec:
+      containers:
+      - name: goapi
+        image: goapi:latest
+        imagePullPolicy: Never
+        ports:
+          - name: http
+            containerPort: 8080
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128M

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: goapi
+  namespace: default
+spec:
+  containers:
+    - name: goapi
+      image: goapi:latest
+      imagePullPolicy: Never
+      ports:
+        - containerPort: 8080
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128M

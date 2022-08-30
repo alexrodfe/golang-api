@@ -6,6 +6,6 @@ COPY go.* ./
 RUN go mod download
 
 COPY . .
-RUN go build -o /golang-api
+RUN go build -o /goapi
 
-CMD ["/golang-api"]
+CMD ["/goapi"]
