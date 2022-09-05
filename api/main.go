@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/alexrodfe/golang-api/answer"
-	"github.com/alexrodfe/golang-api/server"
+	"github.com/alexrodfe/golang-api/api/answer"
+	"github.com/alexrodfe/golang-api/api/server"
 )
 
 var AllAnswersIndexed answer.MapOfAnswers

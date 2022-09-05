@@ -1,0 +1,7 @@
+apiVersion: custom.resources.com/v1
+kind: DeploymentObject
+metadata:
+  name: goapi1
+  namespace: default
+spec:
+  kind: goapi

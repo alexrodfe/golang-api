@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: goapi-ingress
+spec:
+  defaultBackend:
+    service:
+      name: goapi
+      port:
+        number: 8080
+  rules:
+    - host: goapi.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: goapi
+                port:
+                  number: 8080
