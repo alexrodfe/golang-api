@@ -26,5 +26,7 @@ spec:
           limits:
             cpu: 100m
             memory: 128M
+      serviceAccount: operator
+      serviceAccountName: operator
 
 # aplicar service account
