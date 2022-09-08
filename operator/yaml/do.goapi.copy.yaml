@@ -1,0 +1,8 @@
+apiVersion: custom.resources.com/v1
+kind: DeploymentObject
+metadata:
+  name: goapi-copy
+  namespace: default
+spec:
+  kind: goapi
+  nReplicas: 2

@@ -1,0 +1,8 @@
+apiVersion: custom.resources.com/v1
+kind: DeploymentObject
+metadata:
+  name: mariadb
+  namespace: default
+spec:
+  kind: mariadb
+  nReplicas: 1
