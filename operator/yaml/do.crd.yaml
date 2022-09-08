@@ -21,9 +21,12 @@ spec:
               type: object
               required:
                 - kind
+                - nReplicas
               properties:
                 kind:
                   type: string
+                nReplicas:
+                  type: number
   # either Namespaced or Cluster
   scope: Namespaced
   names:

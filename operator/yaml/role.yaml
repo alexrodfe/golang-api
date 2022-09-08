@@ -5,5 +5,9 @@ metadata:
   name: service-reader
 rules:
 - apiGroups: ["custom.resources.com"] # "" indicates the core API group
-  resources: ["services", "deployment-objects"]
-  verbs: ["get", "watch", "list"]
+  resources: ["services", "deployment-objects", "deployments"]
+  verbs: ["post", "get", "watch", "list"]
+
+  # service account
+  # rolebinding
+  # create manifest for clusterrolebinding
