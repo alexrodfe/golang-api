@@ -6,7 +6,7 @@ metadata:
   labels:
     app: mariadb
 spec: # specification for deployment resource
-  replicas: 2 # how many replicas of pods we want to create
+  replicas: 1 # how many replicas of pods we want to create
   selector:
     matchLabels:
       app: mariadb
